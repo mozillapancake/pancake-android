@@ -29,6 +29,9 @@ public class MainActivity extends Activity
     private WebView browserWebView;
     private String lastTitleReceived;
 
+    private static int DRAWER_WIDTH = 280;
+    private static int DRAWER_HANDLE_WIDTH = 20;
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -64,7 +67,7 @@ public class MainActivity extends Activity
                 MainActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        linearLayout.setLeft(- (780 + 250 - 20));
+                        linearLayout.setLeft(- (780 + DRAWER_WIDTH - 20));
                     }
                 });
                 return null;
@@ -83,7 +86,7 @@ public class MainActivity extends Activity
         linearLayout.addView(mainWebView);
 
         drawerWebView = setupDrawerWebView();
-        drawerWebView.setLayoutParams(new LinearLayout.LayoutParams(250, ViewGroup.LayoutParams.MATCH_PARENT));
+        drawerWebView.setLayoutParams(new LinearLayout.LayoutParams(DRAWER_WIDTH, ViewGroup.LayoutParams.MATCH_PARENT));
         linearLayout.addView(drawerWebView);
 
         browserWebView = setupBrowserWebView();
@@ -102,23 +105,25 @@ public class MainActivity extends Activity
                 float dx = Math.abs(e1.getX() - e2.getX());
                 float dy = Math.abs(e1.getY() - e2.getY());
 
-                String s = String.format("Fling velocityX = %f velocityY = %f dx = %f dy = %f", velocityX, velocityY, dx, dy);
-                Toast.makeText(MainActivity.this, s, Toast.LENGTH_LONG).show();
+//                String s = String.format("Fling velocityX = %f velocityY = %f dx = %f dy = %f", velocityX, velocityY, dx, dy);
+//                Toast.makeText(MainActivity.this, s, Toast.LENGTH_LONG).show();
 
-                if (dx > 150 && dy < 50)
+                if (dx > 150)
                 {
                     if (velocityX < -200) {
                         // Fling left
                         if (linearLayout.getLeft() == 0) {
-                            linearLayout.setLeft(-230);
-                        } else if (linearLayout.getLeft() == -230) {
-                            linearLayout.setLeft(- (780 + 250 - 20));
+                            linearLayout.setLeft(-(DRAWER_WIDTH - DRAWER_HANDLE_WIDTH));
+                        } else if (linearLayout.getLeft() == -(DRAWER_WIDTH - DRAWER_HANDLE_WIDTH)) {
+                            linearLayout.setLeft(- (780 + DRAWER_WIDTH - DRAWER_HANDLE_WIDTH));
+                        } else if (linearLayout.getLeft() == -780) {
+                            linearLayout.setLeft(-(780 + DRAWER_WIDTH - DRAWER_HANDLE_WIDTH));
                         }
                     } else if (velocityX > 200) {
                         // Fling right
-                        if (linearLayout.getLeft() == -230) {
+                        if (linearLayout.getLeft() == - (DRAWER_WIDTH - DRAWER_HANDLE_WIDTH)) {
                             linearLayout.setLeft(0);
-                        } else if (linearLayout.getLeft() == (-(780 + 250 - 20))) {
+                        } else if (linearLayout.getLeft() == (-(780 + DRAWER_WIDTH - DRAWER_HANDLE_WIDTH))) {
                             linearLayout.setLeft(-780);
                         } else if (linearLayout.getLeft() == -780) {
                             linearLayout.setLeft(0);
