@@ -90,27 +90,38 @@ public class MainActivity extends Activity
 
         // This gesture recognizer will open the drawer
 
-        final GestureDetector gestureDetector = new GestureDetector(this,new GestureDetector.SimpleOnGestureListener() {
+        final GestureDetector gestureDetector = new GestureDetector(this,new GestureDetector.SimpleOnGestureListener()
+        {
             @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                Toast.makeText(MainActivity.this, "Fling! " + Float.toString(velocityX), Toast.LENGTH_SHORT).show();
-                if (velocityX < -200) {
-                    // Fling left
-                    if (linearLayout.getLeft() == 0) {
-                        linearLayout.setLeft(-230);
-                    } else if (linearLayout.getLeft() == -230) {
-                        linearLayout.setLeft(- (780 + 250 - 20));
-                    }
-                } else if (velocityX > 200) {
-                    // Fling right
-                    if (linearLayout.getLeft() == -230) {
-                        linearLayout.setLeft(0);
-                    } else if (linearLayout.getLeft() == (-(780 + 250 - 20))) {
-                        linearLayout.setLeft(-780);
-                    } else if (linearLayout.getLeft() == -780) {
-                        linearLayout.setLeft(0);
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+            {
+                float dx = Math.abs(e1.getX() - e2.getX());
+                float dy = Math.abs(e1.getY() - e2.getY());
+
+                String s = String.format("Fling velocityX = %f velocityY = %f dx = %f dy = %f", velocityX, velocityY, dx, dy);
+                Toast.makeText(MainActivity.this, s, Toast.LENGTH_LONG).show();
+
+                if (dx > 150 && dy < 50)
+                {
+                    if (velocityX < -200) {
+                        // Fling left
+                        if (linearLayout.getLeft() == 0) {
+                            linearLayout.setLeft(-230);
+                        } else if (linearLayout.getLeft() == -230) {
+                            linearLayout.setLeft(- (780 + 250 - 20));
+                        }
+                    } else if (velocityX > 200) {
+                        // Fling right
+                        if (linearLayout.getLeft() == -230) {
+                            linearLayout.setLeft(0);
+                        } else if (linearLayout.getLeft() == (-(780 + 250 - 20))) {
+                            linearLayout.setLeft(-780);
+                        } else if (linearLayout.getLeft() == -780) {
+                            linearLayout.setLeft(0);
+                        }
                     }
                 }
+
                 return true;
             }
         });
