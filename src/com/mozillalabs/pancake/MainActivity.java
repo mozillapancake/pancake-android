@@ -16,6 +16,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
+
 public class MainActivity extends Activity
 {
     private MessageBridge messageBridge;
@@ -25,6 +27,7 @@ public class MainActivity extends Activity
     private WebView topWebView;
     private WebView drawerWebView;
     private WebView browserWebView;
+    private String lastTitleReceived;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -48,6 +51,7 @@ public class MainActivity extends Activity
             public Object handleMessage(String name, JSONArray arguments) throws JSONException {
                 Log.d("PANCAKE.MainActivity", "Received load:url request " + arguments.toString());
                 JSONObject place = arguments.getJSONObject(0);
+                lastTitleReceived = "";
                 browserWebView.loadUrl(place.getString("url"));
                 return null;
             }
@@ -358,11 +362,57 @@ public class MainActivity extends Activity
         webSettings.setUseWideViewPort(true);
         webSettings.setSupportZoom(true);
 
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onReceivedTitle(WebView view, String title)
+            {
+                lastTitleReceived = title;
+            }
+        });
+
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 view.loadUrl(url);
                 return true;
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url)
+            {
+                Log.d("PANCAKE.MainActivity", "Finished loading page " + url);
+
+                // TODO This is not great
+
+                try
+                {
+                    JSONObject request = new JSONObject();
+
+                    JSONObject visit = new JSONObject();
+                    visit.put("title", lastTitleReceived);
+                    visit.put("url", url);
+                    visit.put("status", 200);
+
+                    JSONObject argument = new JSONObject();
+                    argument.put("type", "navigate");
+                    argument.put("visit", visit);
+
+                    JSONObject call = new JSONObject();
+                    call.put("name", "navigate");
+                    call.put("arguments", new JSONArray(Arrays.asList(argument)));
+
+                    request.put("destination", "top");
+                    request.put("call", call);
+
+                    Log.d("PANCAKE.MainActivity", "Dispatching " + request.toString());
+
+                    messageBridge.dispatch(request.toString());
+                }
+
+                catch (JSONException e) {
+                    Log.d("PANCAKE.MainActivity", "Failed to dispatch message", e);
+                }
+
             }
         });
 
