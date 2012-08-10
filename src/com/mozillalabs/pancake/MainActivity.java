@@ -33,7 +33,7 @@ public class MainActivity extends Activity
 
         // Setup the message passing
 
-        messageBridge = new MessageBridge();
+        messageBridge = new MessageBridge(this);
 
         messageBridge.registerHandler("info", new MessageBridge.Handler() {
             @Override

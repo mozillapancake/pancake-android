@@ -1,5 +1,6 @@
 package com.mozillalabs.pancake;
 
+import android.app.Activity;
 import android.util.Log;
 import android.webkit.WebView;
 import org.json.JSONArray;
@@ -11,6 +12,8 @@ import java.util.Map;
 
 public class MessageBridge
 {
+    private final Activity activity;
+
     public interface Handler {
         Object handleMessage(String name, JSONArray arguments) throws JSONException;
     }
@@ -39,6 +42,11 @@ public class MessageBridge
     WebView getWebView(String name)
     {
         return webViews.get(name);
+    }
+
+    public MessageBridge(Activity activity)
+    {
+        this.activity = activity;
     }
 
     /**
@@ -87,13 +95,19 @@ public class MessageBridge
         return response.toString();
     }
 
-    private String dispatchToWebView(String destination, JSONObject call) throws JSONException
+    private String dispatchToWebView(final String destination, JSONObject call) throws JSONException
     {
-        WebView webView = getWebView(destination);
+        final WebView webView = getWebView(destination);
         if (webView != null) {
-            String json = call.toString();
-            Log.d("PANCAKE.MessageBridge", "Calling " + destination + " " + "javascript:MessageThing.handleCall(" + json + ");");
-            webView.loadUrl("javascript:MessageThing.handleCall(" + json + ");");
+            final String json = call.toString();
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d("PANCAKE.MessageBridge", "Calling " + destination + " " + "javascript:MessageThing.handleCall(" + json + ");");
+                    webView.loadUrl("javascript:MessageThing.handleCall(" + json + ");");
+                }
+            });
+
         }
         return null;
     }
